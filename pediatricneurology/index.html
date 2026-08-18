@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Portfolio — Pediatric Neurology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;
+  --muted:#6b6b67;
+  --hint:#a0a09c;
+  --surf:#f4f2ec;
+  --card:#ffffff;
+  --border:rgba(0,0,0,0.1);
+  --teal-mid:#1D9E75;
+  --teal-light:#E1F5EE;
+  --teal-text:#085041;
+  --purple-mid:#7F77DD;
+  --purple-light:#EEEDFE;
+  --purple-text:#3C3489;
+  --coral-mid:#D85A30;
+  --coral-light:#FAECE7;
+  --coral-text:#4A1B0C;
+  --page-bg:#f9f8f4;
+}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--page-bg);line-height:1.6}
+a{color:inherit;text-decoration:none}
+
+.portfolio{max-width:860px;margin:0 auto;padding:3rem 2rem 5rem}
+
+.hero{margin-bottom:3.5rem;padding-bottom:2.5rem;border-bottom:0.5px solid var(--border)}
+.hero-tag{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.75rem}
+.hero-name{font-family:'DM Serif Display',serif;font-size:46px;line-height:1.1;margin-bottom:0.6rem;color:var(--ink)}
+.hero-name em{font-style:italic;color:var(--teal-mid)}
+.hero-sub{font-size:15px;color:var(--muted);max-width:480px;line-height:1.7}
+.hero-meta{display:flex;gap:2.5rem;margin-top:1.75rem;flex-wrap:wrap}
+.hero-meta-item{display:flex;flex-direction:column;gap:3px}
+.hero-meta-item span:first-child{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--hint)}
+.hero-meta-item span:last-child{font-size:13px;font-weight:500;color:var(--ink)}
+
+.section-label{font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:1.5rem}
+
+.cases{display:flex;flex-direction:column;gap:1.25rem;margin-bottom:3rem}
+
+.case-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s}
+.case-card:hover{border-color:rgba(0,0,0,0.2);box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+
+.case-header{display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:1.25rem;padding:1.5rem}
+.case-number{font-family:'DM Serif Display',serif;font-size:13px;color:var(--hint);padding-top:4px}
+.case-tag{display:inline-block;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:0.5rem;font-weight:500}
+.case-title{font-family:'DM Serif Display',serif;font-size:23px;line-height:1.2;margin-bottom:0.4rem}
+.case-brief{font-size:13px;color:var(--muted);line-height:1.55;max-width:520px}
+.case-toggle{font-size:22px;color:var(--hint);padding-top:2px;transition:transform 0.2s;user-select:none;line-height:1;width:28px;text-align:center}
+
+.case-body{display:none;border-top:0.5px solid var(--border)}
+.case-body.open{display:block}
+
+.case-hero-img{width:100%;height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.case-hero-img svg{width:100%;height:100%}
+
+.case-content{padding:1.5rem 1.5rem 1.75rem}
+.case-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:1.25rem}
+
+.process-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.65rem;margin-bottom:1.25rem}
+.process-step{background:var(--surf);border-radius:10px;padding:0.9rem}
+.step-num{font-size:10px;font-weight:500;color:var(--hint);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em}
+.step-name{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:4px}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.4}
+
+.outcomes-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0.65rem}
+.outcome-card{background:var(--surf);border-radius:10px;padding:0.9rem;text-align:center}
+.outcome-num{font-family:'DM Serif Display',serif;font-size:28px;line-height:1}
+.outcome-label{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35}
+
+.skills-row{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.85rem}
+.skill-tag{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid var(--border);color:var(--muted);background:var(--page-bg)}
+
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.about-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:1.35rem}
+.about-card h3{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:0.85rem;font-weight:400}
+.about-item{display:flex;gap:10px;margin-bottom:0.65rem;align-items:flex-start}
+.about-dot{width:5px;height:5px;border-radius:50%;background:var(--teal-mid);margin-top:6px;flex-shrink:0}
+.about-text{font-size:13px;color:var(--muted);line-height:1.5}
+
+footer{margin-top:4rem;padding-top:2rem;border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:gap;gap:1rem}
+footer p{font-size:12px;color:var(--hint)}
+
+@media(max-width:640px){
+  .portfolio{padding:2rem 1.25rem 4rem}
+  .hero-name{font-size:34px}
+  .outcomes-row{grid-template-columns:repeat(3,1fr)}
+  .about-grid{grid-template-columns:1fr}
+  .case-header{gap:0.85rem}
+  .process-row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:420px){
+  .process-row{grid-template-columns:1fr}
+  .outcomes-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="portfolio">
+
+  <div class="hero">
+    <div class="hero-tag">UX Design Portfolio</div>
+    <div class="hero-name">Designing for <em>rare</em><br>pediatric neurology</div>
+    <div class="hero-sub">Three case studies exploring how thoughtful design can support families, clinicians, and researchers navigating rare pediatric neurological disorders.</div>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span>Focus areas</span><span>Rare disease · Pediatrics · Health UX</span></div>
+      <div class="hero-meta-item"><span>Methods</span><span>Research · Prototyping · Testing</span></div>
+      <div class="hero-meta-item"><span>Role</span><span>UX Design Intern Candidate</span></div>
+    </div>
+  </div>
+
+  <div class="section-label">Case studies</div>
+  <div class="cases">
+
+    <!-- Case 1 -->
+    <div class="case-card" onclick="toggleCase(this)">
+      <div class="case-header">
+        <div class="case-number">01</div>
+        <div>
+          <div class="case-tag" style="background:#E1F5EE;color:#085041">Rare Genetic Disorder · Mobile App</div>
+          <div class="case-title">SATB2 Family Hub</div>
+          <div class="case-brief">A companion app helping families track symptoms, milestones, and care routines for children with SATB2 Syndrome — a rare condition affecting speech, behavior, and skeletal development.</div>
+          <div class="skills-row">
+            <span class="skill-tag">User interviews</span>
+            <span class="skill-tag">Journey mapping</span>
+            <span class="skill-tag">Figma</span>
+            <span class="skill-tag">Usability testing</span>
+          </div>
+        </div>
+        <div class="case-toggle">+</div>
+      </div>
+      <div class="case-body">
+        <div class="case-hero-img" style="background:#E1F5EE">
+          <svg viewBox="0 0 640 180" xmlns="http://www.w3.org/2000/svg">
+            <rect x="60" y="20" width="120" height="140" rx="12" fill="#fff" stroke="#9FE1CB" stroke-width="0.8"/>
+            <rect x="75" y="36" width="90" height="10" rx="3" fill="#1D9E75" opacity="0.4"/>
+            <rect x="75" y="52" width="60" height="7" rx="2" fill="#9FE1CB"/>
+            <rect x="75" y="64" width="45" height="7" rx="2" fill="#9FE1CB"/>
+            <rect x="75" y="82" width="90" height="28" rx="5" fill="#E1F5EE" stroke="#9FE1CB" stroke-width="0.5"/>
+            <rect x="82" y="89" width="50" height="5" rx="2" fill="#1D9E75" opacity="0.5"/>
+            <rect x="82" y="98" width="36" height="5" rx="2" fill="#9FE1CB"/>
+            <rect x="75" y="118" width="40" height="16" rx="4" fill="#1D9E75" opacity="0.8"/>
+            <rect x="120" y="118" width="40" height="16" rx="4" fill="#E1F5EE" stroke="#9FE1CB" stroke-width="0.5"/>
+            <rect x="260" y="20" width="120" height="140" rx="12" fill="#fff" stroke="#9FE1CB" stroke-width="0.8"/>
+            <rect x="275" y="36" width="90" height="8" rx="3" fill="#1D9E75" opacity="0.3"/>
+            <rect x="275" y="50" width="90" height="36" rx="5" fill="#E1F5EE"/>
+            <circle cx="295" cy="66" r="10" fill="#1D9E75" opacity="0.5"/>
+            <rect x="312" y="59" width="46" height="5" rx="2" fill="#9FE1CB"/>
+            <rect x="312" y="68" width="32" height="5" rx="2" fill="#9FE1CB" opacity="0.5"/>
+            <rect x="275" y="93" width="90" height="7" rx="2" fill="#9FE1CB" opacity="0.4"/>
+            <rect x="275" y="105" width="90" height="7" rx="2" fill="#9FE1CB" opacity="0.25"/>
+            <rect x="275" y="120" width="90" height="24" rx="5" fill="#1D9E75" opacity="0.15" stroke="#1D9E75" stroke-width="0.5"/>
+            <rect x="282" y="127" width="56" height="5" rx="2" fill="#1D9E75" opacity="0.5"/>
+            <rect x="282" y="136" width="40" height="4" rx="2" fill="#9FE1CB"/>
+            <rect x="460" y="20" width="120" height="140" rx="12" fill="#fff" stroke="#9FE1CB" stroke-width="0.8"/>
+            <rect x="475" y="36" width="90" height="8" rx="3" fill="#1D9E75" opacity="0.3"/>
+            <rect x="475" y="51" width="26" height="26" rx="4" fill="#E1F5EE" stroke="#9FE1CB" stroke-width="0.5"/>
+            <rect x="506" y="51" width="26" height="26" rx="4" fill="#1D9E75" opacity="0.6"/>
+            <rect x="537" y="51" width="26" height="26" rx="4" fill="#E1F5EE" stroke="#9FE1CB" stroke-width="0.5"/>
+            <rect x="475" y="83" width="90" height="7" rx="2" fill="#9FE1CB" opacity="0.5"/>
+            <rect x="475" y="95" width="90" height="7" rx="2" fill="#9FE1CB" opacity="0.3"/>
+            <rect x="475" y="107" width="60" height="7" rx="2" fill="#9FE1CB" opacity="0.2"/>
+            <rect x="475" y="122" width="90" height="22" rx="4" fill="#1D9E75" opacity="0.8"/>
+            <text x="520" y="137" text-anchor="middle" font-size="9" fill="#fff" font-family="DM Sans,sans-serif">Log today's session</text>
+          </svg>
+        </div>
+        <div class="case-content">
+          <p class="case-desc">SATB2 Syndrome affects roughly 1 in 30,000 children. Parents told me they felt lost between appointments — no central place to track speech therapy progress, behavior patterns, or dental concerns. I designed a mobile companion app to bridge that gap.</p>
+          <div class="process-row">
+            <div class="process-step"><div class="step-num">Research</div><div class="step-name">Family interviews</div><div class="step-desc">6 parent interviews + 2 specialist clinician sessions to map pain points</div></div>
+            <div class="process-step"><div class="step-num">Define</div><div class="step-name">Journey map</div><div class="step-desc">Charted the diagnosis-to-daily-care journey revealing 3 critical friction points</div></div>
+            <div class="process-step"><div class="step-num">Design</div><div class="step-name">Low-fi to hi-fi</div><div class="step-desc">Paper sketches → Figma wireframes → interactive prototype in 3 iterations</div></div>
+            <div class="process-step"><div class="step-num">Test</div><div class="step-name">Usability study</div><div class="step-desc">5 parent testers, SUS score improved from 58 to 84 across two rounds</div></div>
+          </div>
+          <div class="outcomes-row">
+            <div class="outcome-card"><div class="outcome-num" style="color:#1D9E75">84</div><div class="outcome-label">SUS usability score (up from 58)</div></div>
+            <div class="outcome-card"><div class="outcome-num" style="color:#1D9E75">3×</div><div class="outcome-label">faster symptom logging vs. paper journal</div></div>
+            <div class="outcome-card"><div class="outcome-num" style="color:#1D9E75">6</div><div class="outcome-label">parent interviews informing the design</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Case 2 -->
+    <div class="case-card" onclick="toggleCase(this)">
+      <div class="case-header">
+        <div class="case-number">02</div>
+        <div>
+          <div class="case-tag" style="background:#EEEDFE;color:#3C3489">Epilepsy · Clinical Dashboard</div>
+          <div class="case-title">SeizureSight — Clinician Dashboard</div>
+          <div class="case-brief">A web dashboard redesign for pediatric epilepsy neurologists to monitor seizure frequency, medication adherence, and EEG trends across a patient panel — reducing cognitive load during busy clinic days.</div>
+          <div class="skills-row">
+            <span class="skill-tag">Contextual inquiry</span>
+            <span class="skill-tag">Information architecture</span>
+            <span class="skill-tag">Data visualization</span>
+            <span class="skill-tag">Accessibility</span>
+          </div>
+        </div>
+        <div class="case-toggle">+</div>
+      </div>
+      <div class="case-body">
+        <div class="case-hero-img" style="background:#EEEDFE">
+          <svg viewBox="0 0 640 180" xmlns="http://www.w3.org/2000/svg">
+            <rect x="40" y="15" width="560" height="150" rx="8" fill="#fff" stroke="#AFA9EC" stroke-width="0.8"/>
+            <rect x="40" y="15" width="130" height="150" rx="8" fill="#EEEDFE"/>
+            <rect x="40" y="38" width="130" height="10" fill="#EEEDFE"/>
+            <rect x="40" y="15" width="4" height="150" fill="#7F77DD" rx="2"/>
+            <rect x="55" y="30" width="100" height="8" rx="3" fill="#7F77DD" opacity="0.3"/>
+            <rect x="55" y="46" width="110" height="22" rx="4" fill="#7F77DD" opacity="0.15"/>
+            <rect x="62" y="53" width="60" height="6" rx="2" fill="#534AB7" opacity="0.5"/>
+            <rect x="55" y="74" width="110" height="22" rx="4" fill="#fff"/>
+            <rect x="62" y="81" width="60" height="6" rx="2" fill="#7F77DD" opacity="0.4"/>
+            <rect x="55" y="102" width="110" height="22" rx="4" fill="#fff"/>
+            <rect x="62" y="109" width="50" height="6" rx="2" fill="#7F77DD" opacity="0.4"/>
+            <rect x="55" y="130" width="110" height="22" rx="4" fill="#fff"/>
+            <rect x="62" y="137" width="70" height="6" rx="2" fill="#7F77DD" opacity="0.4"/>
+            <rect x="185" y="24" width="115" height="42" rx="5" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+            <text x="193" y="38" font-size="9" fill="#534AB7" font-family="DM Sans,sans-serif">Seizure-free days</text>
+            <text x="193" y="57" font-size="18" fill="#3C3489" font-family="DM Serif Display,serif" font-weight="400">12</text>
+            <rect x="310" y="24" width="115" height="42" rx="5" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+            <text x="318" y="38" font-size="9" fill="#534AB7" font-family="DM Sans,sans-serif">Patients flagged</text>
+            <text x="318" y="57" font-size="18" fill="#3C3489" font-family="DM Serif Display,serif" font-weight="400">3</text>
+            <rect x="435" y="24" width="115" height="42" rx="5" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+            <text x="443" y="38" font-size="9" fill="#534AB7" font-family="DM Sans,sans-serif">Avg. medication adherence</text>
+            <text x="443" y="57" font-size="18" fill="#3C3489" font-family="DM Serif Display,serif" font-weight="400">91%</text>
+            <rect x="185" y="76" width="365" height="76" rx="5" fill="#FAFAFA" stroke="#AFA9EC" stroke-width="0.5"/>
+            <text x="193" y="90" font-size="9" fill="#534AB7" font-family="DM Sans,sans-serif">Weekly seizure events — last 8 weeks</text>
+            <polyline points="205,145 237,128 269,132 301,110 333,138 365,105 397,95 429,118" fill="none" stroke="#7F77DD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="205,145 237,128 269,132 301,110 333,138 365,105 397,95 429,118" fill="none" stroke="#EEEDFE" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+            <circle cx="397" cy="95" r="4" fill="#7F77DD"/>
+          </svg>
+        </div>
+        <div class="case-content">
+          <p class="case-desc">Pediatric epilepsy neurologists manage 20–40 patients daily, yet existing EMR dashboards bury critical data in dense tables. Through contextual inquiry at a children's hospital, I redesigned the patient panel view to surface urgent alerts, longitudinal seizure trends, and medication adherence — all above the fold.</p>
+          <div class="process-row">
+            <div class="process-step"><div class="step-num">Discover</div><div class="step-name">Contextual inquiry</div><div class="step-desc">Shadowed 3 pediatric neurologists across 2 clinic days, noting workarounds</div></div>
+            <div class="process-step"><div class="step-num">Define</div><div class="step-name">Cognitive load audit</div><div class="step-desc">Mapped 14 tasks clinicians perform; identified 6 requiring 3+ clicks unnecessarily</div></div>
+            <div class="process-step"><div class="step-num">Design</div><div class="step-name">IA redesign + hi-fi</div><div class="step-desc">New information hierarchy, progressive disclosure, and accessible color system</div></div>
+            <div class="process-step"><div class="step-num">Validate</div><div class="step-name">Task-based testing</div><div class="step-desc">5 physicians; time-on-task for critical alerts cut by 62% vs. baseline</div></div>
+          </div>
+          <div class="outcomes-row">
+            <div class="outcome-card"><div class="outcome-num" style="color:#534AB7">62%</div><div class="outcome-label">reduction in time to identify urgent alerts</div></div>
+            <div class="outcome-card"><div class="outcome-num" style="color:#534AB7">AA</div><div class="outcome-label">WCAG 2.1 accessibility rating achieved</div></div>
+            <div class="outcome-card"><div class="outcome-num" style="color:#534AB7">4.6/5</div><div class="outcome-label">clinician satisfaction score post-test</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Case 3 -->
+    <div class="case-card" onclick="toggleCase(this)">
+      <div class="case-header">
+        <div class="case-number">03</div>
+        <div>
+          <div class="case-tag" style="background:#FAECE7;color:#4A1B0C">Rare Genetic · Onboarding Design</div>
+          <div class="case-title">ARF1 Syndrome — Newly Diagnosed Family Guide</div>
+          <div class="case-brief">An onboarding experience for families receiving an ARF1-related neurodevelopmental diagnosis — an ultra-rare condition with fewer than 100 documented cases worldwide — designed to reduce isolation and provide immediate next steps.</div>
+          <div class="skills-row">
+            <span class="skill-tag">Empathy mapping</span>
+            <span class="skill-tag">Content strategy</span>
+            <span class="skill-tag">Co-design</span>
+            <span class="skill-tag">Responsive web</span>
+          </div>
+        </div>
+        <div class="case-toggle">+</div>
+      </div>
+      <div class="case-body">
+        <div class="case-hero-img" style="background:#FAECE7">
+          <svg viewBox="0 0 640 180" xmlns="http://www.w3.org/2000/svg">
+            <rect x="80" y="10" width="480" height="160" rx="10" fill="#fff" stroke="#F5C4B3" stroke-width="0.8"/>
+            <rect x="80" y="10" width="480" height="38" rx="10" fill="#FAECE7"/>
+            <rect x="80" y="38" width="480" height="10" fill="#FAECE7"/>
+            <rect x="96" y="20" width="120" height="7" rx="3" fill="#D85A30" opacity="0.4"/>
+            <rect x="96" y="30" width="80" height="5" rx="2" fill="#F0997B" opacity="0.5"/>
+            <rect x="96" y="58" width="200" height="9" rx="3" fill="#D85A30" opacity="0.3"/>
+            <rect x="96" y="72" width="420" height="6" rx="2" fill="#F0997B" opacity="0.3"/>
+            <rect x="96" y="82" width="360" height="6" rx="2" fill="#F0997B" opacity="0.2"/>
+            <rect x="96" y="100" width="130" height="50" rx="6" fill="#FAECE7" stroke="#F5C4B3" stroke-width="0.5"/>
+            <rect x="103" y="108" width="80" height="5" rx="2" fill="#D85A30" opacity="0.4"/>
+            <rect x="103" y="117" width="110" height="4" rx="2" fill="#F0997B" opacity="0.3"/>
+            <rect x="103" y="125" width="90" height="4" rx="2" fill="#F0997B" opacity="0.2"/>
+            <rect x="103" y="138" width="60" height="8" rx="4" fill="#D85A30" opacity="0.6"/>
+            <rect x="244" y="100" width="130" height="50" rx="6" fill="#FAECE7" stroke="#F5C4B3" stroke-width="0.5"/>
+            <rect x="251" y="108" width="80" height="5" rx="2" fill="#D85A30" opacity="0.4"/>
+            <rect x="251" y="117" width="110" height="4" rx="2" fill="#F0997B" opacity="0.3"/>
+            <rect x="251" y="125" width="90" height="4" rx="2" fill="#F0997B" opacity="0.2"/>
+            <rect x="251" y="138" width="60" height="8" rx="4" fill="#D85A30" opacity="0.6"/>
+            <rect x="392" y="100" width="130" height="50" rx="6" fill="#FAECE7" stroke="#F5C4B3" stroke-width="0.5"/>
+            <rect x="399" y="108" width="80" height="5" rx="2" fill="#D85A30" opacity="0.4"/>
+            <rect x="399" y="117" width="110" height="4" rx="2" fill="#F0997B" opacity="0.3"/>
+            <rect x="399" y="125" width="90" height="4" rx="2" fill="#F0997B" opacity="0.2"/>
+            <rect x="399" y="138" width="60" height="8" rx="4" fill="#D85A30" opacity="0.6"/>
+            <circle cx="540" cy="78" r="14" fill="#FAECE7" stroke="#F5C4B3" stroke-width="0.8"/>
+            <text x="540" y="82" text-anchor="middle" font-size="13" fill="#D85A30" font-family="DM Sans,sans-serif">?</text>
+          </svg>
+        </div>
+        <div class="case-content">
+          <p class="case-desc">When families receive an ARF1 diagnosis — a condition so rare that most clinicians have never seen a case — they face an information void. I co-designed an onboarding web experience with 4 affected families, prioritizing emotional safety alongside actionable content: who to call, what to ask the neurologist, and where to find the (tiny) global community.</p>
+          <div class="process-row">
+            <div class="process-step"><div class="step-num">Empathize</div><div class="step-name">Empathy mapping</div><div class="step-desc">Mapped emotional states across the 72-hr window post-diagnosis with 4 families</div></div>
+            <div class="process-step"><div class="step-num">Co-design</div><div class="step-name">Family workshops</div><div class="step-desc">2 participatory design sessions; families sorted, named, and prioritized content</div></div>
+            <div class="process-step"><div class="step-num">Content</div><div class="step-name">Plain language audit</div><div class="step-desc">Rewrote 18 medical content pieces to grade 7 reading level with clinician review</div></div>
+            <div class="process-step"><div class="step-num">Test</div><div class="step-name">Tree testing + UT</div><div class="step-desc">Navigation success rate improved from 44% to 89% after IA restructure</div></div>
+          </div>
+          <div class="outcomes-row">
+            <div class="outcome-card"><div class="outcome-num" style="color:#D85A30">89%</div><div class="outcome-label">navigation task success rate (up from 44%)</div></div>
+            <div class="outcome-card"><div class="outcome-num" style="color:#D85A30">Gr. 7</div><div class="outcome-label">reading level achieved across all content</div></div>
+            <div class="outcome-card"><div class="outcome-num" style="color:#D85A30">4</div><div class="outcome-label">families as co-designers throughout</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-label">About this work</div>
+  <div class="about-grid">
+    <div class="about-card">
+      <h3>My approach</h3>
+      <div class="about-item"><div class="about-dot"></div><div class="about-text">Lead with research — especially in rare disease, assumptions are dangerous</div></div>
+      <div class="about-item"><div class="about-dot"></div><div class="about-text">Involve patients and families as co-designers, not just test participants</div></div>
+      <div class="about-item"><div class="about-dot"></div><div class="about-text">Measure both usability metrics and emotional impact</div></div>
+      <div class="about-item"><div class="about-dot"></div><div class="about-text">Accessibility is a baseline, not a feature</div></div>
+    </div>
+    <div class="about-card">
+      <h3>Skills demonstrated</h3>
+      <div class="about-item"><div class="about-dot"></div><div class="about-text">User research: interviews, contextual inquiry, diary studies</div></div>
+      <div class="about-item"><div class="about-dot"></div><div class="about-text">Synthesis: affinity mapping, journey maps, empathy maps</div></div>
+      <div class="about-item"><div class="about-dot"></div><div class="about-text">Design: wireframing, prototyping, visual design in Figma</div></div>
+      <div class="about-item"><div class="about-dot"></div><div class="about-text">Validation: usability testing, tree testing, SUS scoring</div></div>
+    </div>
+  </div>
+
+  <footer>
+    <p>UX Design Portfolio · Pediatric Neurology Focus</p>
+    <p style="color:#a0a09c">Built with care for families navigating rare diagnosis</p>
+  </footer>
+
+</div>
+
+<script>
+function toggleCase(card){
+  const body = card.querySelector('.case-body');
+  const toggle = card.querySelector('.case-toggle');
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.case-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.case-toggle').forEach(t => { t.textContent = '+'; });
+  if (!isOpen) {
+    body.classList.add('open');
+    toggle.textContent = '×';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capsule — Shared Patient Summary</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F2EC;
+    --bg-card: #FDFBF7;
+    --ink: #1A1714;
+    --ink-muted: #6B6560;
+    --ink-faint: #B5B0AA;
+    --accent: #2D5F4F;
+    --accent-light: #E8F1EE;
+    --accent-warm: #C4763A;
+    --accent-warm-light: #FAF0E6;
+    --danger: #8B2E2E;
+    --danger-light: #F5E8E8;
+    --border: #E2DDD6;
+    --border-strong: #C8C0B5;
+    --shadow: 0 1px 3px rgba(26,23,20,0.08), 0 4px 16px rgba(26,23,20,0.04);
+    --shadow-lg: 0 8px 32px rgba(26,23,20,0.12);
+    --radius: 8px;
+    --radius-lg: 14px;
+
+    --role-gp: #2D5F4F;
+    --role-gp-bg: #E8F1EE;
+    --role-physio: #1E4A7A;
+    --role-physio-bg: #E6EEF6;
+    --role-diet: #6B4226;
+    --role-diet-bg: #F5EDE6;
+    --role-psych: #4A2868;
+    --role-psych-bg: #EDE6F5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  .nav {
+    background: var(--ink);
+    color: #fff;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    color: #fff;
+  }
+  .nav-logo span { color: #7BC4A8; }
+  .nav-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    background: rgba(255,255,255,0.12);
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.7);
+  }
+  .nav-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .nav-patient {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+  }
+  .nav-patient strong { color: #fff; font-weight: 500; }
+
+  /* ROLE SWITCHER */
+  .role-bar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .role-btn {
+    padding: 14px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .role-btn:hover { color: var(--ink); background: var(--bg); }
+  .role-btn.active { color: var(--ink); border-bottom-color: var(--ink); }
+  .role-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .role-btn[data-role="gp"] .role-dot { background: var(--role-gp); }
+  .role-btn[data-role="physio"] .role-dot { background: var(--role-physio); }
+  .role-btn[data-role="dietitian"] .role-dot { background: var(--role-diet); }
+  .role-btn[data-role="psychologist"] .role-dot { background: var(--role-psych); }
+  .role-btn.active[data-role="gp"] { border-bottom-color: var(--role-gp); color: var(--role-gp); }
+  .role-btn.active[data-role="physio"] { border-bottom-color: var(--role-physio); color: var(--role-physio); }
+  .role-btn.active[data-role="dietitian"] { border-bottom-color: var(--role-diet); color: var(--role-diet); }
+  .role-btn.active[data-role="psychologist"] { border-bottom-color: var(--role-psych); color: var(--role-psych); }
+
+  /* TABS */
+  .tab-bar {
+    padding: 0 32px;
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .tab-btn {
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    border-bottom: 2px solid transparent;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* MAIN */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+  }
+
+  /* PANEL */
+  .panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .panel-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    font-weight: 400;
+  }
+  .panel-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+    margin-left: auto;
+  }
+  .panel-body { padding: 20px; }
+
+  /* SUMMARY SECTIONS */
+  .summary-section {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .summary-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* TAGS */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .tag-neutral { background: var(--bg); border: 1px solid var(--border); color: var(--ink); }
+  .tag-accent { background: var(--accent-light); color: var(--accent); }
+  .tag-warm { background: var(--accent-warm-light); color: var(--accent-warm); }
+  .tag-danger { background: var(--danger-light); color: var(--danger); }
+
+  /* ALERTS */
+  .alert {
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .alert-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .alert-danger { background: var(--danger-light); color: var(--danger); border-left: 3px solid var(--danger); }
+  .alert-warm { background: var(--accent-warm-light); color: var(--accent-warm); border-left: 3px solid var(--accent-warm); }
+  .alert-accent { background: var(--accent-light); color: var(--accent); border-left: 3px solid var(--accent); }
+
+  /* REDACTED */
+  .redacted {
+    background: var(--ink);
+    color: var(--ink);
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-size: 12px;
+    user-select: none;
+    cursor: not-allowed;
+    position: relative;
+    display: inline-block;
+  }
+  .redacted::after {
+    content: '⚿ Restricted';
+    color: var(--bg-card);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3px;
+  }
+
+  .redacted-block {
+    background: var(--ink);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    color: var(--bg-card);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .redacted-block span { opacity: 0.5; }
+
+  /* VISIBILITY PILL */
+  .visibility-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .vis-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.5px;
+  }
+  .vis-pill {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .vis-pill.gp { background: var(--role-gp-bg); color: var(--role-gp); }
+  .vis-pill.physio { background: var(--role-physio-bg); color: var(--role-physio); }
+  .vis-pill.dietitian { background: var(--role-diet-bg); color: var(--role-diet); }
+  .vis-pill.psychologist { background: var(--role-psych-bg); color: var(--role-psych); }
+
+  /* SIDEBAR */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+  /* PATIENT CARD */
+  .patient-card {
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+  .patient-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+  .patient-meta {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 16px;
+    font-family: 'DM Mono', monospace;
+  }
+  .patient-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .patient-stat {
+    background: rgba(255,255,255,0.07);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .patient-stat-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .patient-stat-val {
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  /* PERMISSION PANEL */
+  .perm-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .perm-row:last-child { border-bottom: none; }
+  .perm-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .perm-role { font-size: 13px; font-weight: 500; flex: 1; }
+  .perm-toggle {
+    display: flex;
+    gap: 2px;
+    background: var(--bg);
+    border-radius: 20px;
+    padding: 2px;
+    border: 1px solid var(--border);
+  }
+  .perm-opt {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--ink-muted);
+    transition: all 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .perm-opt.on { background: var(--accent); color: #fff; }
+  .perm-opt.partial { background: var(--accent-warm); color: #fff; }
+
+  /* ACTIVITY LOG */
+  .activity-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-time {
+    font-family: 'DM Mono', monospace;
+    color: var(--ink-faint);
+    font-size: 11px;
+    flex-shrink: 0;
+    width: 70px;
+  }
+  .activity-text { color: var(--ink-muted); line-height: 1.5; }
+  .activity-text strong { color: var(--ink); font-weight: 500; }
+
+  /* DATA MODEL TAB */
+  .model-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .model-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .model-card-header {
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .model-card-header.included { background: var(--accent-light); color: var(--accent); }
+  .model-card-header.excluded { background: var(--danger-light); color: var(--danger); }
+  .model-card-header.controlled { background: var(--accent-warm-light); color: var(--accent-warm); }
+  .model-card-body { padding: 12px 16px; }
+  .model-item {
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--ink-muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .model-item:last-child { border-bottom: none; }
+  .model-item::before { content: '·'; color: var(--ink-faint); flex-shrink: 0; margin-top: 1px; }
+
+  /* EXPLANATION TAB */
+  .explanation { max-width: 680px; }
+  .exp-section { margin-bottom: 32px; }
+  .exp-h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  .exp-h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .exp-p {
+    font-size: 14px;
+    color: var(--ink-muted);
+    line-height: 1.75;
+    margin-bottom: 10px;
+  }
+  .exp-principle {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .exp-principle-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .exp-principle-body { font-size: 13px; color: var(--ink-muted); line-height: 1.6; }
+  .comparison-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .comparison-bad {
+    background: var(--danger-light);
+    border: 1px solid #E5B8B8;
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .comparison-good {
+    background: var(--accent-light);
+    border: 1px solid #A8CCB8;
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .comp-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .comparison-bad .comp-label { color: var(--danger); }
+  .comparison-good .comp-label { color: var(--accent); }
+  .comp-body { font-size: 13px; line-height: 1.6; font-style: italic; color: var(--ink-muted); }
+
+  /* PAGE TABS */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ROLE CONTEXT BANNER */
+  .role-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .role-banner-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .role-banner strong { color: var(--ink); }
+
+  /* UTIL */
+  .mono { font-family: 'DM Mono', monospace; }
+  .mt8 { margin-top: 8px; }
+  .mt12 { margin-top: 12px; }
+  .flex-row { display: flex; align-items: center; gap: 8px; }
+  .text-muted { color: var(--ink-muted); }
+  .text-small { font-size: 12px; }
+
+  /* SENSITIVE TOGGLE */
+  .sensitive-notice {
+    font-size: 12px;
+    color: var(--ink-muted);
+    background: var(--bg);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .flag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid currentColor;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; }
+    .model-grid { grid-template-columns: 1fr; }
+    .comparison-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">Cap<span>sule</span></div>
+  <span class="nav-tag">SHARED SUMMARY · PROTOTYPE</span>
+  <div class="nav-right">
+    <span class="nav-patient">Patient: <strong>Sarah M., 34F</strong></span>
+  </div>
+</nav>
+
+<!-- ROLE SWITCHER -->
+<div class="role-bar">
+  <button class="role-btn active" data-role="gp" onclick="switchRole('gp', this)">
+    <span class="role-dot"></span> Dr. Aisha Patel — GP
+  </button>
+  <button class="role-btn" data-role="physio" onclick="switchRole('physio', this)">
+    <span class="role-dot"></span> James Okafor — Physiotherapist
+  </button>
+  <button class="role-btn" data-role="dietitian" onclick="switchRole('dietitian', this)">
+    <span class="role-dot"></span> Mei Chen — Dietitian
+  </button>
+  <button class="role-btn" data-role="psychologist" onclick="switchRole('psychologist', this)">
+    <span class="role-dot"></span> Dr. Lena Walsh — Psychologist
+  </button>
+</div>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('summary', this)">Patient Summary</button>
+  <button class="tab-btn" onclick="switchTab('model', this)">Data Model</button>
+  <button class="tab-btn" onclick="switchTab('explanation', this)">Design Rationale</button>
+</div>
+
+<!-- SUMMARY TAB -->
+<div id="tab-summary" class="tab-content active">
+  <div class="main">
+    <!-- MAIN CONTENT -->
+    <div>
+
+      <!-- ROLE BANNER -->
+      <div class="panel" style="margin-bottom:16px">
+        <div class="role-banner" id="role-banner">
+          <div class="role-banner-dot" id="role-banner-dot" style="background:var(--role-gp)"></div>
+          Viewing as <strong id="role-banner-name">Dr. Aisha Patel (GP)</strong> — 
+          <span id="role-banner-access">Full clinical access. You are the coordinating practitioner.</span>
+        </div>
+      </div>
+
+      <!-- SHARED SUMMARY PANEL -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Shared Patient Summary</div>
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+            <span class="flag-chip" style="color:var(--accent)">✓ Clinician-verified</span>
+            <span class="flag-chip" style="color:var(--ink-muted)">Updated 2h ago</span>
+          </div>
+        </div>
+        <div class="panel-body" id="summary-body">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <!-- Patient Card -->
+      <div class="patient-card">
+        <div class="patient-name">Sarah M.</div>
+        <div class="patient-meta">DOB 14 Mar 1991 · MRN 00482</div>
+        <div class="patient-stats">
+          <div class="patient-stat">
+            <div class="patient-stat-label">ACTIVE SINCE</div>
+            <div class="patient-stat-val">Jan 2023</div>
+          </div>
+          <div class="patient-stat">
+            <div class="patient-stat-label">PRACTITIONERS</div>
+            <div class="patient-stat-val">4 active</div>
+          </div>
+          <div class="patient-stat">
+            <div class="patient-stat-label">LAST CONSULT</div>
+            <div class="patient-stat-val">Today</div>
+          </div>
+          <div class="patient-stat">
+            <div class="patient-stat-label">NEXT APPT</div>
+            <div class="patient-stat-val">14 Apr</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Permission Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title" style="font-size:14px">Section Visibility</div>
+          <span class="panel-badge" style="background:var(--bg);color:var(--ink-muted);font-family:'DM Mono',monospace;font-size:10px;padding:3px 7px;border-radius:4px">CONTROLLED BY GP</span>
+        </div>
+        <div class="panel-body">
+          <div class="perm-row">
+            <div class="perm-dot" style="background:var(--role-gp)"></div>
+            <div class="perm-role">GP</div>
+            <div class="perm-toggle">
+              <button class="perm-opt on">Full</button>
+              <button class="perm-opt">Partial</button>
+              <button class="perm-opt">None</button>
+            </div>
+          </div>
+          <div class="perm-row">
+            <div class="perm-dot" style="background:var(--role-physio)"></div>
+            <div class="perm-role">Physiotherapist</div>
+            <div class="perm-toggle">
+              <button class="perm-opt">Full</button>
+              <button class="perm-opt partial on">Partial</button>
+              <button class="perm-opt">None</button>
+            </div>
+          </div>
+          <div class="perm-row">
+            <div class="perm-dot" style="background:var(--role-diet)"></div>
+            <div class="perm-role">Dietitian</div>
+            <div class="perm-toggle">
+              <button class="perm-opt">Full</button>
+              <button class="perm-opt partial on">Partial</button>
+              <button class="perm-opt">None</button>
+            </div>
+          </div>
+          <div class="perm-row">
+            <div class="perm-dot" style="background:var(--role-psych)"></div>
+            <div class="perm-role">Psychologist</div>
+            <div class="perm-toggle">
+              <button class="perm-opt">Full</button>
+              <button class="perm-opt">Partial</button>
+              <button class="perm-opt on" style="background:var(--danger);color:#fff">None</button>
+            </div>
+          </div>
+          <div class="sensitive-notice mt12">
+            <span>🔒</span>
+            <span>Psychology notes are fully siloed. Psychologist cannot see the shared summary and their contributions are never surfaced to others.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title" style="font-size:14px">Access Log</div>
+        </div>
+        <div class="panel-body">
+          <div class="activity-item">
+            <div class="activity-time">Today 9:14</div>
+            <div class="activity-text"><strong>Dr. Patel</strong> viewed full summary</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-time">Today 8:52</div>
+            <div class="activity-text"><strong>J. Okafor</strong> viewed physio-relevant sections</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-time">Yesterday</div>
+            <div class="activity-text"><strong>Dr. Patel</strong> updated medications list</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-time">3 Apr</div>
+            <div class="activity-text"><strong>M. Chen</strong> added nutrition flag</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-time">1 Apr</div>
+            <div class="activity-text"><strong>System</strong> summary auto-compiled from notes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DATA MODEL TAB -->
+<div id="tab-model" class="tab-content">
+  <div style="max-width:900px;margin:0 auto;padding:28px 32px">
+    <h2 style="font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;margin-bottom:6px">Data Model</h2>
+    <p style="color:var(--ink-muted);margin-bottom:24px;font-size:14px">What appears in the shared summary, what's excluded, and who controls visibility.</p>
+
+    <div class="model-grid">
+      <div class="model-card">
+        <div class="model-card-header included">✓ Included — Shared Summary</div>
+        <div class="model-card-body">
+          <div class="model-item">Active diagnoses (ICD-coded, clinician-confirmed)</div>
+          <div class="model-item">Current medications + doses + prescribing clinician</div>
+          <div class="model-item">Known allergies & adverse reactions</div>
+          <div class="model-item">Active treatment goals (cross-discipline)</div>
+          <div class="model-item">Flags affecting other practitioners (e.g. mobility restrictions, dietary needs)</div>
+          <div class="model-item">Care coordination notes (GP-authored, brief)</div>
+          <div class="model-item">Next scheduled appointments across disciplines</div>
+          <div class="model-item">Recent significant results (GP-curated)</div>
+        </div>
+      </div>
+      <div class="model-card">
+        <div class="model-card-header excluded">✕ Excluded — Never in Shared View</div>
+        <div class="model-card-body">
+          <div class="model-item">Psychology / mental health session notes</div>
+          <div class="model-item">Raw consultation transcripts from any discipline</div>
+          <div class="model-item">Subjective clinician impressions or working hypotheses</div>
+          <div class="model-item">Historical notes older than 2 years (unless GP promotes them)</div>
+          <div class="model-item">Sensitive social history (DV, addiction, legal)</div>
+          <div class="model-item">Diagnostic uncertainty / differential lists</div>
+          <div class="model-item">Billing and administrative records</div>
+          <div class="model-item">Patient-submitted data not reviewed by a clinician</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="model-card" style="margin-bottom:16px">
+      <div class="model-card-header controlled">⚙ Controlled — Practitioner-Scoped Contributions</div>
+      <div class="model-card-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding-top:4px">
+          <div>
+            <div style="font-weight:600;font-size:12px;color:var(--role-gp);margin-bottom:6px;font-family:'DM Mono',monospace">GP (Coordinating)</div>
+            <div class="model-item">Can promote any content to shared view</div>
+            <div class="model-item">Sets visibility for other roles</div>
+            <div class="model-item">Authors care coordination notes</div>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:12px;color:var(--role-physio);margin-bottom:6px;font-family:'DM Mono',monospace">Physiotherapist</div>
+            <div class="model-item">Contributes mobility flags only</div>
+            <div class="model-item">Sees: diagnoses, medications, goals</div>
+            <div class="model-item">Cannot see: psych, social history</div>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:12px;color:var(--role-diet);margin-bottom:6px;font-family:'DM Mono',monospace">Dietitian</div>
+            <div class="model-item">Contributes nutrition flags</div>
+            <div class="model-item">Sees: diagnoses, medications, goals</div>
+            <div class="model-item">Cannot see: psych, social history</div>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:12px;color:var(--role-psych);margin-bottom:6px;font-family:'DM Mono',monospace">Psychologist</div>
+            <div class="model-item">Fully siloed by default</div>
+            <div class="model-item">Cannot see or contribute to shared summary</div>
+            <div class="model-item">Can signal "awareness flag" with patient consent only</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title" style="font-size:14px">Permission Inheritance Rules</div></div>
+      <div class="panel-body">
+        <div class="alert alert-accent"><div class="alert-icon">📌</div><div>The <strong>GP is the default coordinating practitioner</strong> and owns the shared summary. Any new content added by allied health is flagged for GP review before appearing in the shared view.</div></div>
+        <div class="alert alert-warm"><div class="alert-icon">⚡</div><div><strong>Flags can bypass GP review</strong> only for time-sensitive safety concerns (e.g. a physio flagging a fall risk that affects prescribing). These are marked as Unreviewed and the GP is notified immediately.</div></div>
+        <div class="alert alert-danger"><div class="alert-icon">🔒</div><div><strong>Psychology is opt-out by default.</strong> Psychologists never see the shared summary unless the patient grants explicit written consent for a specific disclosure. Even then, only a single summary flag can be shared — not session notes.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPLANATION TAB -->
+<div id="tab-explanation" class="tab-content">
+  <div style="max-width:900px;margin:0 auto;padding:28px 32px">
+    <div class="explanation">
+
+      <div class="exp-section">
+        <h2 class="exp-h2">Design Rationale</h2>
+        <p class="exp-p">The Capsule Shared Patient Summary solves a real coordination failure — practitioners working in silos, patients acting as the information bridge, duplicated and conflicting care — without introducing the risks that typically kill these projects: information overload, liability-driven note inflation, or privacy breaches.</p>
+        <p class="exp-p">Here's how every key design decision was made.</p>
+      </div>
+
+      <div class="exp-section">
+        <h2 class="exp-h2">1. Summaries, not notes</h2>
+        <p class="exp-p">The central design principle is that the shared view is a <em>summary layer</em>, not a document repository. Raw consultation notes never appear. Instead, only structured, clinician-curated facts are surfaced: diagnoses, medications, goals, cross-discipline flags.</p>
+        <p class="exp-p">This immediately eliminates the biggest liability risk: practitioners being bound by another clinician's working hypotheses, narrative impressions, or unconfirmed differentials. What you see is what has been <em>confirmed and promoted</em> by a named clinician.</p>
+      </div>
+
+      <div class="exp-section">
+        <h2 class="exp-h2">2. The GP as coordinator, not gatekeeper</h2>
+        <p class="exp-p">The coordinating GP controls what appears in the shared view, but this is not a bottleneck model. Allied health practitioners contribute structured flags — a physio flags a mobility restriction, a dietitian flags a nutritional concern — and these appear immediately in <em>their contribution queue</em> while awaiting GP ratification for the shared layer.</p>
+        <p class="exp-p">For safety-critical flags, the system allows immediate surfacing with an "Unreviewed" indicator and a GP notification. This preserves speed without surrendering oversight.</p>
+      </div>
+
+      <div class="exp-section">
+        <h2 class="exp-h2">3. Role-scoped views eliminate information overload</h2>
+        <p class="exp-p">Each practitioner only sees what is <em>clinically relevant to them</em>. A physiotherapist doesn't need to know about a patient's medication history for hypertension — they need to know about movement restrictions, pain flags, and any medications that affect exercise tolerance. The system calculates this automatically by role, and practitioners cannot access data outside their scope.</p>
+        <p class="exp-p">This is not just about privacy — it's about reducing cognitive load. A summary that shows a physio everything the GP knows is useless noise. A summary that shows them exactly what they need to treat the patient safely is a clinical superpower.</p>
+      </div>
+
+      <div class="exp-section">
+        <h2 class="exp-h2">4. Psychology is fully siloed by default</h2>
+        <p class="exp-p">Mental health records are fundamentally different in nature and in law. Psychologists cannot see the shared summary, and their notes are never surfaced to other practitioners — even the coordinating GP — without explicit patient consent for a specific, scoped disclosure.</p>
+        <p class="exp-p">The only exception is a voluntary "awareness flag" — a binary signal the psychologist can choose to raise (with patient consent) that simply says "this patient is engaged in mental health support." No content, no detail. Just enough for the GP to avoid prescribing contraindicated medications or dismissing unexplained symptoms.</p>
+      </div>
+
+      <div class="exp-section">
+        <h2 class="exp-h2">5. How this avoids CYA note inflation</h2>
+        <p class="exp-p">Defensive documentation happens when practitioners feel they will be judged by what they wrote — or blamed for what they didn't. Capsule's architecture directly attacks the conditions that cause CYA inflation:</p>
+
+        <div class="comparison-row">
+          <div class="comparison-bad">
+            <div class="comp-label">❌ CYA TRIGGER</div>
+            <div class="comp-body">"Patient reports pain at 7/10. Advised to reduce activity. Physio informed. Note: unclear if cardiac origin ruled out. Further investigation may be warranted. Not my area."</div>
+          </div>
+          <div class="comparison-good">
+            <div class="comp-label">✓ CAPSULE MODEL</div>
+            <div class="comp-body">Physio flags: <em>Mobility restriction — load-bearing activity. GP to advise on cardiac clearance before next session.</em> Structured. Scoped. Actionable.</div>
+          </div>
+        </div>
+
+        <div class="exp-principle">
+          <div class="exp-principle-title">Structured fields, not free text</div>
+          <div class="exp-principle-body">Contributions to the shared view are structured — flags, goals, diagnoses — not prose. You can't write an essay in a flag field. The format enforces brevity and removes the temptation to narrate defensively.</div>
+        </div>
+        <div class="exp-principle">
+          <div class="exp-principle-title">Attribution without accusation</div>
+          <div class="exp-principle-body">Every item in the shared view is attributed to its author. This creates accountability without blame — a physio's flag belongs to the physio, and is clearly not the GP's clinical judgment. Practitioners aren't taking on responsibility for each other's domains.</div>
+        </div>
+        <div class="exp-principle">
+          <div class="exp-principle-title">No raw notes in the shared view</div>
+          <div class="exp-principle-body">Because raw notes never appear, practitioners don't write the shared summary — they curate it. This decouples the clinical documentation process (where CYA inflation lives) from the coordination layer entirely.</div>
+        </div>
+        <div class="exp-principle">
+          <div class="exp-principle-title">Audit log, not judgment log</div>
+          <div class="exp-principle-body">The access log records who viewed what, and when. This is for transparency and patient safety — not for attributing blame. Practitioners know they're not being surveilled on clinical judgment, only on access.</div>
+        </div>
+      </div>
+
+      <div class="exp-section">
+        <h2 class="exp-h2">6. Why this is legally survivable</h2>
+        <p class="exp-p">The model is designed to survive medicolegal scrutiny because of three properties:</p>
+        <p class="exp-p"><strong>Explicit attribution.</strong> Every shared item names a clinician and a timestamp. There is no ambiguity about who asserted what.</p>
+        <p class="exp-p"><strong>Consent-gated sensitive fields.</strong> Psychology content requires written patient consent for any disclosure. This is logged and enforced at the system level.</p>
+        <p class="exp-p"><strong>Scoped responsibility.</strong> Practitioners are only shown, and only contribute to, sections within their clinical scope. A dietitian seeing a medication list cannot be construed as taking responsibility for it.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- DATA ----
+
+const roles = {
+  gp: {
+    name: 'Dr. Aisha Patel (GP)',
+    color: 'var(--role-gp)',
+    access: 'Full clinical access. You are the coordinating practitioner.',
+  },
+  physio: {
+    name: 'James Okafor (Physiotherapist)',
+    color: 'var(--role-physio)',
+    access: 'Partial access — you see diagnoses, medications relevant to movement, and active goals.',
+  },
+  dietitian: {
+    name: 'Mei Chen (Dietitian)',
+    color: 'var(--role-diet)',
+    access: 'Partial access — you see diagnoses, medications relevant to nutrition, and active goals.',
+  },
+  psychologist: {
+    name: 'Dr. Lena Walsh (Psychologist)',
+    color: 'var(--role-psych)',
+    access: 'Siloed — you do not have access to the shared patient summary.',
+  }
+};
+
+const summaryData = {
+  alerts: {
+    label: 'Active Alerts',
+    roles: ['gp', 'physio', 'dietitian'],
+    items: {
+      gp: [
+        { type: 'danger', icon: '⚠', text: 'Methotrexate — monthly LFT due. Last: 12 Mar 2025.' },
+        { type: 'warm', icon: '⚡', text: 'Physio flagged: load-bearing activity restriction pending cardiac clearance.' },
+        { type: 'accent', icon: '📋', text: 'Dietitian contribution pending your review.' },
+      ],
+      physio: [
+        { type: 'danger', icon: '⚠', text: 'Cardiac clearance required before resuming load-bearing exercise. Await GP advice.' },
+        { type: 'warm', icon: '💊', text: 'Methotrexate may cause fatigue — factor into exercise load planning.' },
+      ],
+      dietitian: [
+        { type: 'warm', icon: '💊', text: 'Methotrexate — ensure adequate folate intake. Avoid high-dose supplements without GP sign-off.' },
+        { type: 'accent', icon: '🎯', text: 'Active goal: anti-inflammatory diet. Coordinate with GP on supplementation.' },
+      ],
+    }
+  },
+  diagnoses: {
+    label: 'Active Diagnoses',
+    roles: ['gp', 'physio', 'dietitian'],
+    items: {
+      gp: [
+        { code: 'M05.9', label: 'Rheumatoid Arthritis, seropositive', by: 'Dr. Patel', date: 'Jan 2023' },
+        { code: 'E11.9', label: 'Type 2 Diabetes Mellitus', by: 'Dr. Patel', date: 'Jun 2021' },
+        { code: 'F41.1', label: 'Generalised Anxiety Disorder', by: 'Dr. Walsh (Psych)', date: '—', restricted: true },
+      ],
+      physio: [
+        { code: 'M05.9', label: 'Rheumatoid Arthritis, seropositive', by: 'Dr. Patel', date: 'Jan 2023' },
+        { code: 'E11.9', label: 'Type 2 Diabetes Mellitus', by: 'Dr. Patel', date: 'Jun 2021' },
+      ],
+      dietitian: [
+        { code: 'M05.9', label: 'Rheumatoid Arthritis, seropositive', by: 'Dr. Patel', date: 'Jan 2023' },
+        { code: 'E11.9', label: 'Type 2 Diabetes Mellitus', by: 'Dr. Patel', date: 'Jun 2021' },
+      ],
+    }
+  },
+  medications: {
+    label: 'Current Medications',
+    roles: ['gp', 'physio', 'dietitian'],
+    items: {
+      gp: [
+        { drug: 'Methotrexate', dose: '15mg weekly', note: 'DMARD — LFT monitoring required', flag: 'Monitor' },
+        { drug: 'Folic Acid', dose: '5mg daily (not on MTX day)', note: 'Supplemental', flag: null },
+        { drug: 'Metformin', dose: '500mg BD', note: 'T2DM', flag: null },
+        { drug: 'Naproxen', dose: '500mg PRN', note: 'NSAID — review GI symptoms', flag: 'Review' },
+      ],
+      physio: [
+        { drug: 'Methotrexate', dose: '15mg weekly', note: 'May cause fatigue — factor into exercise load', flag: 'Fatigue risk' },
+        { drug: 'Naproxen', dose: '500mg PRN', note: 'Pain-masking risk during exercise', flag: 'Caution' },
+      ],
+      dietitian: [
+        { drug: 'Methotrexate', dose: '15mg weekly', note: 'Folate antagonist — supplementation needed', flag: 'Folate' },
+        { drug: 'Folic Acid', dose: '5mg daily (not on MTX day)', note: 'Do not recommend additional high-dose folate', flag: null },
+        { drug: 'Metformin', dose: '500mg BD', note: 'May affect B12 absorption', flag: 'B12 risk' },
+      ],
+    }
+  },
+  goals: {
+    label: 'Active Treatment Goals',
+    roles: ['gp', 'physio', 'dietitian'],
+    items: {
+      gp: [
+        { goal: 'Maintain DAS28 score ≤ 3.2 (low disease activity)', owner: 'GP', status: 'In progress' },
+        { goal: 'HbA1c < 53 mmol/mol by Jul 2025', owner: 'GP', status: 'On track' },
+        { goal: 'Return to low-impact exercise 3x/week', owner: 'Physio', status: 'Pending clearance' },
+        { goal: 'Adopt anti-inflammatory dietary pattern', owner: 'Dietitian', status: 'In progress' },
+      ],
+      physio: [
+        { goal: 'Return to low-impact exercise 3x/week', owner: 'Physio', status: 'Pending cardiac clearance' },
+        { goal: 'Maintain DAS28 ≤ 3.2 — exercise supports this', owner: 'GP', status: 'In progress' },
+      ],
+      dietitian: [
+        { goal: 'Adopt anti-inflammatory dietary pattern', owner: 'Dietitian', status: 'In progress' },
+        { goal: 'HbA1c < 53 mmol/mol — dietary support', owner: 'GP', status: 'On track' },
+      ],
+    }
+  },
+  coordination: {
+    label: 'Care Coordination Notes',
+    roles: ['gp'],
+    items: {
+      gp: [
+        { text: 'Sarah is engaged across all four practitioners. Primary barrier to exercise is pain and uncertainty about cardiac safety — once cleared, physio can progress. Dietitian reviewing Mediterranean diet plan. Psych involvement is confidential and patient has not consented to disclosure.', by: 'Dr. Patel', date: '5 Apr 2025' },
+      ],
+    }
+  }
+};
+
+// ---- RENDER ----
+
+let currentRole = 'gp';
+
+function renderSummary(role) {
+  const body = document.getElementById('summary-body');
+  if (role === 'psychologist') {
+    body.innerHTML = `
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-size:32px;margin-bottom:12px">🔒</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:8px">Access Restricted</div>
+        <div style="color:var(--ink-muted);font-size:14px;max-width:360px;margin:0 auto;line-height:1.6">
+          As a psychologist, you are siloed from the shared patient summary by default. This protects both you and the patient from inadvertent disclosures.<br><br>
+          You may raise a voluntary <strong>awareness flag</strong> with patient consent — this signals your involvement without sharing any session content.
+        </div>
+        <button style="margin-top:20px;padding:10px 20px;border:1px solid var(--border-strong);background:none;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink-muted)">Request patient consent for awareness flag →</button>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+
+  // ALERTS
+  const alerts = summaryData.alerts;
+  if (alerts.roles.includes(role) && alerts.items[role]) {
+    html += `<div class="summary-section">`;
+    html += `<div class="section-label">Active Alerts</div>`;
+    alerts.items[role].forEach(a => {
+      html += `<div class="alert alert-${a.type}"><div class="alert-icon">${a.icon}</div><div>${a.text}</div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  // DIAGNOSES
+  const dx = summaryData.diagnoses;
+  if (dx.roles.includes(role) && dx.items[role]) {
+    html += `<div class="summary-section">`;
+    html += `<div class="section-label">Active Diagnoses</div>`;
+    dx.items[role].forEach(d => {
+      if (d.restricted) {
+        html += `
+          <div class="redacted-block">
+            <span>🔒</span>
+            <span>1 diagnosis restricted — controlled by another practitioner. Not visible at your access level.</span>
+          </div>`;
+      } else {
+        html += `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span class="mono" style="font-size:11px;color:var(--ink-faint);width:55px;flex-shrink:0">${d.code}</span>
+            <span style="flex:1;font-size:13px">${d.label}</span>
+            <span style="font-size:11px;color:var(--ink-faint);font-family:'DM Mono',monospace">${d.by} · ${d.date}</span>
+          </div>`;
+      }
+    });
+    html += `</div>`;
+  }
+
+  // MEDICATIONS
+  const meds = summaryData.medications;
+  if (meds.roles.includes(role) && meds.items[role]) {
+    html += `<div class="summary-section">`;
+    html += `<div class="section-label">Medications — Relevant to Your Scope</div>`;
+    meds.items[role].forEach(m => {
+      html += `
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="flex:1">
+            <div style="font-weight:500;font-size:13px">${m.drug} <span style="font-weight:400;color:var(--ink-muted);font-size:12px">${m.dose}</span></div>
+            <div style="font-size:12px;color:var(--ink-muted);margin-top:2px">${m.note}</div>
+          </div>
+          ${m.flag ? `<span class="tag tag-warm" style="font-size:11px;flex-shrink:0">${m.flag}</span>` : ''}
+        </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // GOALS
+  const goals = summaryData.goals;
+  if (goals.roles.includes(role) && goals.items[role]) {
+    html += `<div class="summary-section">`;
+    html += `<div class="section-label">Active Treatment Goals</div>`;
+    goals.items[role].forEach(g => {
+      const statusColor = g.status.includes('track') ? 'var(--accent)' : g.status.includes('progress') ? 'var(--accent-warm)' : 'var(--ink-muted)';
+      html += `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="flex:1;font-size:13px">${g.goal}</div>
+          <span style="font-size:11px;color:${statusColor};flex-shrink:0;font-weight:500">${g.status}</span>
+          <span style="font-size:10px;color:var(--ink-faint);font-family:'DM Mono',monospace;flex-shrink:0">${g.owner}</span>
+        </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // COORDINATION (GP only)
+  const coord = summaryData.coordination;
+  if (coord.roles.includes(role) && coord.items[role]) {
+    html += `<div class="summary-section">`;
+    html += `<div class="section-label">Care Coordination</div>`;
+    coord.items[role].forEach(c => {
+      html += `
+        <div style="background:var(--bg);border-radius:var(--radius);padding:14px;border:1px solid var(--border)">
+          <div style="font-size:13px;line-height:1.7;color:var(--ink-muted)">${c.text}</div>
+          <div style="margin-top:8px;font-size:11px;color:var(--ink-faint);font-family:'DM Mono',monospace">${c.by} · ${c.date}</div>
+        </div>`;
+    });
+    html += `</div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function switchRole(role, btn) {
+  currentRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const r = roles[role];
+  document.getElementById('role-banner-dot').style.background = r.color;
+  document.getElementById('role-banner-name').textContent = r.name;
+  document.getElementById('role-banner-access').textContent = r.access;
+
+  renderSummary(role);
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// Init
+renderSummary('gp');
+</script>
+</body>
+</html>
